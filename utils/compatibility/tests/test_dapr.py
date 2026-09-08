@@ -4,6 +4,7 @@ from copy import deepcopy
 import importlib
 from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
@@ -172,8 +173,51 @@ class UpdateTests(unittest.TestCase):
         self.assertEqual([row["version"] for row in rows], ["1.18.3", "1.18.2"])
         self.assertNotIn("1.18.0", [row["version"] for row in rows])
 
+    def test_saved_chart_never_rolls_back_when_index_omits_its_latest_mapping(self):
+        old = stored("1.18.0", "3.0.1")
+        original = deepcopy(old)
+        for charts in [{"1.18.0": "3.0.0"}, {}]:
+            with self.subTest(charts=charts):
+                self.assertEqual(scraper.build_updates(charts, [old], lambda _: self.fail("No workflow read")), [])
+        self.assertEqual(old, original)
+
+    def test_invalid_saved_chart_cannot_be_silently_replaced(self):
+        with self.assertRaises(ValueError):
+            scraper.build_updates({"1.18.0": "3.0.1"}, [stored("1.18.0", "unknown")], workflow)
+
 
 class ScrapeTests(unittest.TestCase):
+    def test_newer_exact_chart_refreshes_images_through_writer_then_noops(self):
+        old = stored("1.18.0", "3.0.0")
+        old.update(kube=["1.33"], summary={"features": ["keep"]}, eolAt="2027-01-01",
+                   requirements=[{"name": "keep", "version": "1.0"}],
+                   incompatibilities=[{"name": "avoid", "version": "2.0"}], images=["old:image"])
+        original = deepcopy(old)
+        with TemporaryDirectory() as directory:
+            target = Path(directory) / "dapr.yaml"
+            target.write_text(yaml.safe_dump({"helm_repository_url": "https://dapr.github.io/helm-charts",
+                                              "versions": [old]}))
+            with patch.object(scraper, "TARGET_FILE", str(target)), \
+                    patch.object(scraper, "_fetch", return_value=index([entry("1.18.0", "3.0.1")])) as fetch, \
+                    patch.object(scraper, "update_compatibility_info", wraps=scraper.update_compatibility_info) as update, \
+                    patch("utils.get_chart_images", return_value=["new:image"]) as render, \
+                    patch("utils.summarization_enabled", return_value=False), \
+                    patch("utils.print_success"), patch("utils.print_warning"):
+                scraper.scrape()
+                update.assert_called_once()
+                render.assert_called_once_with("https://dapr.github.io/helm-charts", "dapr", "3.0.1", None)
+                self.assertEqual(yaml.safe_load(target.read_text())["versions"],
+                                 [dict(original, chart_version="3.0.1", images=["new:image"])])
+                saved = target.read_bytes()
+                update.reset_mock()
+                render.reset_mock()
+                scraper.scrape()
+                update.assert_not_called()
+                render.assert_not_called()
+                self.assertEqual(target.read_bytes(), saved)
+                self.assertEqual(fetch.call_args_list, [unittest.mock.call(scraper.INDEX_URL)] * 2)
+        self.assertEqual(old, original)
+
     def test_source_http_timeout_or_bad_workflow_never_writes_partial_data(self):
         for failure in [requests.Timeout("timeout"), requests.HTTPError("404"), [INDEX, b"jobs: {}"]]:
             with self.subTest(failure=failure), patch.object(scraper, "read_yaml", return_value={"versions": []}), \

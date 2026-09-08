@@ -35,6 +35,12 @@ first minor release, target changes and the overall latest patch:
 | 1.16.4 | 1.34, 1.33, 1.32 |
 | 1.16.0 | 1.31, 1.30, 1.29 |
 
+For an already recorded runtime, a newer exact stable chart mapping updates the
+chart while retaining its Kubernetes targets, summary, requirements and EOL
+metadata. The normal writer refreshes images from that chart's render. Equal or
+older mappings make no change, including when the index temporarily loses a
+newer saved chart; an unparseable stored chart fails for review.
+
 The target change occurs at 1.16.4. The five default Helm renders provide the
 operator, injector, placement, scheduler and sentry images stored in the YAML.
 Sidecar images injected into application deployments are not fabricated from
@@ -50,9 +56,10 @@ python3 -m venv .venv
 env -u EXA_API_KEY -u OPENAI_API_KEY .venv/bin/python -m unittest discover -s utils/compatibility/tests -p 'test_dapr.py' -v
 ```
 
-The 23 tests cover strict chart/version matching, finite matrices, source changes,
+The 26 tests cover strict chart/version matching, finite matrices, source changes,
 commented or disabled test commands, patch target changes, history preservation,
-delayed charts, no-op updates and manifest/aggregate consistency. Fixture source
+delayed charts, chart-only upgrades and image refresh, rollback prevention,
+no-op updates and manifest/aggregate consistency. Fixture source
 URLs and retrieval dates are embedded in each YAML file. Workflow fixtures contain
 the exact `e2e` job extracted from their identified release tags; the index fixture
 contains exact representative entries. They perform no network requests.

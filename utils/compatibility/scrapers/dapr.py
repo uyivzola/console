@@ -126,7 +126,13 @@ def build_updates(charts, existing, fetch_workflow):
     for version, chart in sorted(charts.items(), key=lambda pair: _version(pair[0]), reverse=True):
         previous = recorded.get(version)
         if previous and previous.get("chart_version"):
-            continue
+            old_chart = _version(previous["chart_version"])
+            if old_chart is None:
+                raise ValueError(f"Invalid stored Dapr chart version for {version}")
+            # Adopt repackaged charts for the same runtime, but never roll back
+            # when an index temporarily omits the latest saved chart.
+            if _version(chart) <= old_chart:
+                continue
         if previous:
             row = deepcopy(previous)
             row["chart_version"] = chart
