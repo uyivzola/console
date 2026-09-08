@@ -14726,7 +14726,7 @@ addons:
 - icon: https://avatars.githubusercontent.com/u/54918165?s=48&v=4
   git_url: https://github.com/projectcontour/contour
   release_url: https://github.com/projectcontour/contour/releases/tag/v{vsn}
-  helm_repository_url: https://charts.bitnami.com/bitnami
+  helm_repository_url: https://projectcontour.github.io/helm-charts/
   eolApiSlug: contour
   versions:
   - version: 1.33.7
@@ -14734,13 +14734,15 @@ addons:
     requirements: []
     incompatibilities: []
     summary: null
-    images: ['docker.io/envoyproxy/envoy:distroless-v1.38.4', 'ghcr.io/projectcontour/contour:v1.33.7']
+    images: ['docker.io/envoyproxy/envoy:v1.38.4', 'ghcr.io/projectcontour/contour:v1.33.7']
+    chart_version: 0.8.0
   - version: 1.33.0
     kube: ['1.34', '1.33', '1.32']
     requirements: []
     incompatibilities: []
     summary: null
-    images: ['docker.io/envoyproxy/envoy:distroless-v1.35.2', 'ghcr.io/projectcontour/contour:v1.33.0']
+    images: ['docker.io/envoyproxy/envoy:v1.35.2', 'ghcr.io/projectcontour/contour:v1.33.0']
+    chart_version: 0.2.0
   - version: 1.32.1
     kube: ['1.33', '1.32', '1.31']
     requirements: []
@@ -14752,7 +14754,6 @@ addons:
           fixes and changes from Envoy 1.34.4.', Go toolchain/runtime bumped from
           v1.24.3 to v1.24.6.]
       breaking_changes: []
-    chart_version: 21.1.4
     images: ['docker.io/bitnami/contour:1.32.1-debian-12-r0', 'docker.io/bitnami/envoy:1.34.5-debian-12-r0']
   - version: 1.32.0
     kube: ['1.33', '1.32', '1.31']
@@ -14768,8 +14769,8 @@ addons:
           the `contour` CLI xDS discovery behavior so subsequent DiscoveryRequests
           include the requested resource names, not only the first request.']
       breaking_changes: []
-    chart_version: 21.1.2
-    images: ['docker.io/bitnami/contour:1.32.0-debian-12-r8', 'docker.io/bitnami/envoy:1.34.4-debian-12-r0']
+    chart_version: 0.1.0
+    images: ['docker.io/envoyproxy/envoy:v1.34.1', 'ghcr.io/projectcontour/contour:v1.32.0']
   - version: 1.31.0
     kube: ['1.32', '1.31', '1.30']
     requirements: []
@@ -14799,7 +14800,6 @@ addons:
           `useEndpointSlices` feature flag and remaining Endpoints-path code removed.
           Any setups that explicitly forced Endpoints API (or relied on disabling
           EndpointSlice mirroring) must be updated; Contour now always uses EndpointSlices.']
-    chart_version: 20.0.1
     images: ['docker.io/bitnami/contour:1.31.0-debian-12-r2', 'docker.io/bitnami/envoy:1.34.1-debian-12-r0']
   - version: 1.30.0
     kube: ['1.30', '1.29', '1.28']
@@ -14825,7 +14825,6 @@ addons:
           to `PodMonitor`/Prometheus Operator flow.', 'Deprecated: xDS server type
           fields in the config file and ContourConfiguration CRD are now deprecated
           and planned for removal in 1.31 (along with the legacy `contour` xDS implementation).']
-    chart_version: 19.2.1
     images: ['docker.io/bitnami/contour:1.30.0-debian-12-r6', 'docker.io/bitnami/envoy:1.31.2-debian-12-r0']
     eolAt: '2025-09-08'
   - version: 1.29.0
@@ -14833,7 +14832,6 @@ addons:
     requirements: []
     incompatibilities: []
     summary: null
-    chart_version: 18.2.3
     images: ['docker.io/bitnami/contour:1.29.0-debian-12-r1', 'docker.io/bitnami/envoy:1.29.5-debian-12-r0']
     eolAt: '2025-05-15'
   - version: 1.28.0
@@ -14869,7 +14867,6 @@ addons:
           path matches due to the new sorting algorithm; this can alter which route
           matches first in large/complex routing tables. Validate route order and
           behavior before/after upgrade.]
-    chart_version: 15.4.0
     images: ['docker.io/bitnami/contour:1.27.0-debian-11-r9', 'docker.io/bitnami/envoy:1.27.2-debian-11-r8']
     eolAt: '2024-07-31'
   - version: 1.26.0
@@ -14903,7 +14900,6 @@ addons:
           you must now keep the Service ports in sync with all Gateway listeners because
           Contour supports many listener ports; previously some configurations may
           have assumed only one HTTP and one HTTPS port.']
-    chart_version: 13.1.4
     images: ['docker.io/bitnami/contour:1.26.0-debian-11-r17', 'docker.io/bitnami/envoy:1.26.5-debian-11-r0']
     eolAt: '2024-05-07'
   - version: 1.25.0
@@ -14911,7 +14907,6 @@ addons:
     requirements: []
     incompatibilities: []
     summary: null
-    chart_version: 12.2.2
     images: ['docker.io/bitnami/contour:1.25.0-debian-11-r73', 'docker.io/bitnami/envoy:1.26.3-debian-11-r10']
     eolAt: '2024-02-12'
   - version: 1.24.0
@@ -14950,7 +14945,6 @@ addons:
           release., 'Gateway API behavior is more strictly conformant (e.g., HTTPRoute
           rule precedence by list order); if you relied on previous non-conformant
           matching/attachment quirks, re-test routing outcomes after upgrade.']
-    chart_version: 10.1.1
     images: ['docker.io/bitnami/contour:1.23.0-debian-11-r10', 'docker.io/bitnami/envoy:1.24.0-debian-11-r11']
   - version: 1.22.0
     kube: ['1.24', '1.23', '1.22']
@@ -14986,7 +14980,6 @@ addons:
           TLS must be Passthrough) may cause previously-accepted configs to become
           invalid/unready.', "Kubernetes version support shifted to 1.22\u20131.24;\
           \ clusters on 1.21 are no longer in the tested/supported window for v1.22.0."]
-    chart_version: 9.1.1
     images: ['docker.io/bitnami/contour:1.22.0-debian-11-r4', 'docker.io/bitnami/envoy:1.23.0-debian-11-r8']
   - version: 1.21.0
     kube: ['1.23', '1.22', '1.21']
@@ -15032,14 +15025,12 @@ addons:
           Role/RoleBinding; installs that relied on cluster-wide ConfigMap permissions
           must be updated accordingly., Contour images are no longer pushed to Docker
           Hub; image pulls must be updated to GHCR.]
-    chart_version: 8.0.0
     images: ['docker.io/bitnami/contour:1.21.0-debian-11-r0', 'docker.io/bitnami/envoy:1.22.1-debian-11-r0']
   - version: 1.20.1
     kube: ['1.23', '1.22', '1.21']
     requirements: []
     incompatibilities: []
     summary: null
-    chart_version: 7.10.2
     images: ['docker.io/bitnami/contour:1.20.1-debian-11-r0', 'docker.io/bitnami/envoy:1.21.2-debian-11-r0']
   name: contour
 - icon: https://avatars.githubusercontent.com/u/21110084?s=200&v=4
